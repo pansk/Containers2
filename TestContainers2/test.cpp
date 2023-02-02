@@ -12,6 +12,10 @@ static_assert(std::is_trivially_assignable_v<VectorView<const int>&, const Vecto
 static_assert(std::is_trivially_assignable_v<VectorView<const int>&, const VectorView<int>&>);
 static_assert(std::is_trivially_assignable_v<VectorView<const int>&, const Vector<const int>&>);
 static_assert(std::is_trivially_assignable_v<VectorView<const int>&, const Vector<int>&>);
+static_assert(std::is_trivially_constructible_v<VectorView<const int>, const VectorView<const int>&>);
+static_assert(std::is_trivially_constructible_v<VectorView<const int>, const VectorView<int>&>); // bugfixing
+static_assert(std::is_trivially_constructible_v<VectorView<const int>, const Vector<const int>&>);
+static_assert(std::is_trivially_constructible_v<VectorView<const int>, const Vector<int>&>);
 
 // VectorView<mutable T> copy constructors
 // - can trivially assign from VectorView<mutable T> and Vector<mutable T>
@@ -20,6 +24,10 @@ static_assert(!std::is_assignable_v<VectorView<int>&, const VectorView<const int
 static_assert(std::is_trivially_assignable_v<VectorView<int>&, const VectorView<int>&>);
 static_assert(!std::is_assignable_v<VectorView<int>&, const Vector<const int>&>);
 static_assert(std::is_trivially_assignable_v<VectorView<int>&, const Vector<int>&>);
+static_assert(!std::is_constructible_v<VectorView<int>, const VectorView<const int>&>);
+static_assert(std::is_trivially_constructible_v<VectorView<int>, const VectorView<int>&>);
+static_assert(!std::is_constructible_v<VectorView<int>, const Vector<const int>&>);
+static_assert(std::is_trivially_constructible_v<VectorView<int>, const Vector<int>&>);
 
 // Vector<T> copy constructors: cannot assign from anything
 static_assert(!std::is_assignable_v<Vector<const int>&, const VectorView<const int>&>);
@@ -31,13 +39,18 @@ static_assert(!std::is_assignable_v<Vector<int>&, const VectorView<int>&>);
 static_assert(!std::is_assignable_v<Vector<int>&, const Vector<const int>&>);
 static_assert(!std::is_assignable_v<Vector<int>&, const Vector<int>&>);
 
-// VectorView<const T> move constructors
+// VectorView<const T> move constructors/operator=s
 // - can trivially assign from VectorView<T>
 // - cannot assign from Vector<T> (loses ownership)
 static_assert(std::is_trivially_assignable_v<VectorView<const int>&, VectorView<const int>&&>);
 static_assert(std::is_trivially_assignable_v<VectorView<const int>&, VectorView<int>&&>);
 static_assert(!std::is_assignable_v<VectorView<const int>&, Vector<const int>&&>);
 static_assert(!std::is_assignable_v<VectorView<const int>&, Vector<int>&&>);
+static_assert(std::is_trivially_constructible_v<VectorView<const int>, VectorView<const int>&&>);
+static_assert(std::is_trivially_constructible_v<VectorView<const int>, VectorView<int>&&>); // bugfixing
+static_assert(std::is_trivially_constructible_v<VectorView<const int>, VectorView<int>&&>); // bugfixing
+static_assert(!std::is_constructible_v<VectorView<const int>, Vector<const int>&&>);
+static_assert(!std::is_constructible_v<VectorView<const int>, Vector<int>&&>);
 
 // VectorView<mutable T> move constructors
 // - can trivially assign from VectorView<mutable T>
@@ -47,6 +60,10 @@ static_assert(!std::is_assignable_v<VectorView<int>&, VectorView<const int>&&>);
 static_assert(std::is_trivially_assignable_v<VectorView<int>&, VectorView<int>&&>);
 static_assert(!std::is_assignable_v<VectorView<int>&, Vector<const int>&&>);
 static_assert(!std::is_assignable_v<VectorView<int>&, Vector<int>&&>);
+static_assert(!std::is_constructible_v<VectorView<int>, VectorView<const int>&&>);
+static_assert(std::is_trivially_constructible_v<VectorView<int>, VectorView<int>&&>);
+static_assert(!std::is_constructible_v<VectorView<int>, Vector<const int>&&>);
+static_assert(!std::is_constructible_v<VectorView<int>, Vector<int>&&>);
 
 // Vector<const T> move constructor
 // - cannot assign from VectorView<T> (cannot take ownership)
@@ -55,6 +72,12 @@ static_assert(!std::is_assignable_v<Vector<const int>&, VectorView<int>&&>);
 // - can assign (not necessarily trivially) from Vector<T> (takes ownership)
 static_assert(std::is_assignable_v<Vector<const int>&, Vector<const int>&&>);
 static_assert(std::is_assignable_v<Vector<const int>&, Vector<int>&&>);
+// - cannot construct from VectorView<T>&& (cannot take ownership) -> but not assignable, i.e. it's only explicitly constructible! - Copies the content!
+static_assert(!std::is_constructible_v<Vector<const int>, VectorView<const int>&&>);
+static_assert(!std::is_constructible_v<Vector<const int>, VectorView<int>&&>);
+// - can construct (not necessarily trivially) from Vector<T> (takes ownership)
+static_assert(std::is_constructible_v<Vector<const int>, Vector<const int>&&>);
+static_assert(std::is_constructible_v<Vector<const int>, Vector<int>&&>);
 
 // Vector<mutable T> move constructor
 // - cannot assign from VectorView<T> (cannot take ownership)
@@ -64,6 +87,13 @@ static_assert(!std::is_assignable_v<Vector<int>&, VectorView<int>&&>);
 static_assert(!std::is_assignable_v<Vector<int>&, Vector<const int>&&>);
 // - can assign (not necessarily trivially) from Vector<mutable T> (takes ownership)
 static_assert(std::is_assignable_v<Vector<int>&, Vector<int>&&>);
+// - cannot move from VectorView<T> (cannot take ownership)
+static_assert(!std::is_constructible_v<Vector<int>, VectorView<const int>&&>);
+static_assert(!std::is_constructible_v<Vector<int>, VectorView<int>&&>);
+// - cannot move from Vector<const T> (const violation)
+static_assert(!std::is_constructible_v<Vector<int>, Vector<const int>&&>);
+// - can move (not necessarily trivially) from Vector<mutable T> (takes ownership)
+static_assert(std::is_constructible_v<Vector<int>, Vector<int>&&>);
 
 TEST(Containers2, VectorViewAccess) {
     int array[]{ 5, 7, 12 };   
@@ -292,6 +322,7 @@ TEST(Containers2, VectorMoveAssignment) {
 TEST(Containers2, VectorViewCopyConstruction) {
     int array[]{ 5, 7, 12 };
 
+    // copy
     VectorView<int> mutable_view_with_mutable_data{ array }; // 1
     VectorView<const int> mutable_view_with_const_data{ array }; // 2
     const VectorView<int> const_view_with_mutable_data{ array }; // 3
