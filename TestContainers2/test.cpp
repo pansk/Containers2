@@ -13,7 +13,7 @@ static_assert(std::is_trivially_assignable_v<VectorView<const int>&, const Vecto
 static_assert(std::is_trivially_assignable_v<VectorView<const int>&, const Vector<const int>&>);
 static_assert(std::is_trivially_assignable_v<VectorView<const int>&, const Vector<int>&>);
 static_assert(std::is_trivially_constructible_v<VectorView<const int>, const VectorView<const int>&>);
-static_assert(std::is_trivially_constructible_v<VectorView<const int>, const VectorView<int>&>); // bugfixing
+static_assert(std::is_trivially_constructible_v<VectorView<const int>, const VectorView<int>&>);
 static_assert(std::is_trivially_constructible_v<VectorView<const int>, const Vector<const int>&>);
 static_assert(std::is_trivially_constructible_v<VectorView<const int>, const Vector<int>&>);
 
@@ -47,8 +47,8 @@ static_assert(std::is_trivially_assignable_v<VectorView<const int>&, VectorView<
 static_assert(!std::is_assignable_v<VectorView<const int>&, Vector<const int>&&>);
 static_assert(!std::is_assignable_v<VectorView<const int>&, Vector<int>&&>);
 static_assert(std::is_trivially_constructible_v<VectorView<const int>, VectorView<const int>&&>);
-static_assert(std::is_trivially_constructible_v<VectorView<const int>, VectorView<int>&&>); // bugfixing
-static_assert(std::is_trivially_constructible_v<VectorView<const int>, VectorView<int>&&>); // bugfixing
+static_assert(std::is_trivially_constructible_v<VectorView<const int>, VectorView<int>&&>);
+static_assert(std::is_trivially_constructible_v<VectorView<const int>, VectorView<int>&&>);
 static_assert(!std::is_constructible_v<VectorView<const int>, Vector<const int>&&>);
 static_assert(!std::is_constructible_v<VectorView<const int>, Vector<int>&&>);
 
